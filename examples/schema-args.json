@@ -1,0 +1,63 @@
+{
+  "columns": [
+    {
+      "name": "sentence",
+      "type": "Sentence",
+      "args": {
+        "range": {
+          "start": 3,
+          "end": 5
+        }
+      }
+    },
+    {
+      "name": "paragraph",
+      "type": "Paragraph",
+      "args": {
+        "range": {
+          "start": 3,
+          "end": 5
+        }
+      }
+    },
+    {
+      "name": "formatted_number",
+      "type": "NumberWithFormat",
+      "args": {
+        "fmt": "#.##"
+      }
+    },
+    {
+      "name": "boolean_50_50",
+      "type": "Boolean",
+      "args": {
+        "ratio": 50
+      }
+    },
+    {
+      "name": "password",
+      "type": "Password",
+      "args": {
+        "range": {
+          "start": 8,
+          "end": 20
+        }
+      }
+    },
+    {
+      "name": "geohash",
+      "type": "Geohash",
+      "args": {
+        "precision": 11
+      }
+    },
+    {
+      "name": "datetime_between",
+      "type": "DateTimeBetween",
+      "args": {
+        "start": "2023-01-01T00:00:00Z",
+        "end": "2024-01-01T00:00:00Z"
+      }
+    }
+  ]
+}

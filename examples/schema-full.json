@@ -1,0 +1,489 @@
+{
+  "columns": [
+    {
+      "name": "u32",
+      "type": "u32"
+    },
+    {
+      "name": "u64",
+      "type": "u64"
+    },
+    {
+      "name": "i64",
+      "type": "i64"
+    },
+    {
+      "name": "i32",
+      "type": "i32"
+    },
+    {
+      "name": "f32",
+      "type": "f32"
+    },
+    {
+      "name": "f64",
+      "type": "f64"
+    },
+    {
+      "name": "age",
+      "type": "u32",
+      "args": {
+        "range": {
+          "start": 18,
+          "end": 65
+        }
+      }
+    },
+    {
+      "name": "id",
+      "type": "u64",
+      "args": {
+        "range": {
+          "start": 0,
+          "end": 8000000000
+        }
+      }
+    },
+    {
+      "name": "large_range",
+      "type": "i64",
+      "args": {
+        "range": {
+          "start": -40000000000,
+          "end": 40000000000
+        }
+      }
+    },
+    {
+      "name": "score",
+      "type": "i32",
+      "args": {
+        "range": {
+          "start": -100,
+          "end": 100
+        }
+      }
+    },
+    {
+      "name": "angle",
+      "type": "f32",
+      "args": {
+        "range": {
+          "start": -180.0,
+          "end": 180.0
+        }
+      }
+    },
+    {
+      "name": "price",
+      "type": "f64",
+      "args": {
+        "range": {
+          "start": 10.0,
+          "end": 999.99
+        }
+      }
+    },
+    {
+      "name": "word",
+      "type": "Word"
+    },
+    {
+      "name": "sentence",
+      "type": "Sentence",
+      "args": {
+        "range": {
+          "start": 3,
+          "end": 5
+        }
+      }
+    },
+    {
+      "name": "paragraph",
+      "type": "Paragraph",
+      "args": {
+        "range": {
+          "start": 3,
+          "end": 5
+        }
+      }
+    },
+    {
+      "name": "first_name",
+      "type": "FirstName"
+    },
+    {
+      "name": "last_name",
+      "type": "LastName"
+    },
+    {
+      "name": "title",
+      "type": "Title"
+    },
+    {
+      "name": "suffix",
+      "type": "Suffix"
+    },
+    {
+      "name": "name",
+      "type": "Name"
+    },
+    {
+      "name": "name_with_title",
+      "type": "NameWithTitle"
+    },
+    {
+      "name": "seniority",
+      "type": "Seniority"
+    },
+    {
+      "name": "field",
+      "type": "Field"
+    },
+    {
+      "name": "position",
+      "type": "Position"
+    },
+    {
+      "name": "job_title",
+      "type": "JobTitle"
+    },
+    {
+      "name": "digit",
+      "type": "Digit"
+    },
+    {
+      "name": "formatted_number",
+      "type": "NumberWithFormat",
+      "args": {
+        "fmt": "#.##"
+      }
+    },
+    {
+      "name": "boolean_50_50",
+      "type": "Boolean",
+      "args": {
+        "ratio": 50
+      }
+    },
+    {
+      "name": "email_provider",
+      "type": "FreeEmailProvider"
+    },
+    {
+      "name": "domain_suffix",
+      "type": "DomainSuffix"
+    },
+    {
+      "name": "free_email",
+      "type": "FreeEmail"
+    },
+    {
+      "name": "safe_email",
+      "type": "SafeEmail"
+    },
+    {
+      "name": "username",
+      "type": "Username"
+    },
+    {
+      "name": "password",
+      "type": "Password",
+      "args": {
+        "range": {
+          "start": 8,
+          "end": 20
+        }
+      }
+    },
+    {
+      "name": "ipv4",
+      "type": "IPv4"
+    },
+    {
+      "name": "ipv6",
+      "type": "IPv6"
+    },
+    {
+      "name": "ip",
+      "type": "IP"
+    },
+    {
+      "name": "mac_address",
+      "type": "MACAddress"
+    },
+    {
+      "name": "user_agent",
+      "type": "UserAgent"
+    },
+    {
+      "name": "rfc_status_code",
+      "type": "RfcStatusCode"
+    },
+    {
+      "name": "valid_status_code",
+      "type": "ValidStatusCode"
+    },
+    {
+      "name": "hex_color",
+      "type": "HexColor"
+    },
+    {
+      "name": "rgb_color",
+      "type": "RgbColor"
+    },
+    {
+      "name": "rgba_color",
+      "type": "RgbaColor"
+    },
+    {
+      "name": "hsl_color",
+      "type": "HslColor"
+    },
+    {
+      "name": "hsla_color",
+      "type": "HslaColor"
+    },
+    {
+      "name": "color",
+      "type": "Color"
+    },
+    {
+      "name": "company_suffix",
+      "type": "CompanySuffix"
+    },
+    {
+      "name": "company_name",
+      "type": "CompanyName"
+    },
+    {
+      "name": "buzzword",
+      "type": "Buzzword"
+    },
+    {
+      "name": "buzzword_middle",
+      "type": "BuzzwordMiddle"
+    },
+    {
+      "name": "buzzword_tail",
+      "type": "BuzzwordTail"
+    },
+    {
+      "name": "catch_phrase",
+      "type": "CatchPhrase"
+    },
+    {
+      "name": "bs_verb",
+      "type": "BsVerb"
+    },
+    {
+      "name": "bs_adj",
+      "type": "BsAdj"
+    },
+    {
+      "name": "bs_noun",
+      "type": "BsNoun"
+    },
+    {
+      "name": "bs",
+      "type": "Bs"
+    },
+    {
+      "name": "profession",
+      "type": "Profession"
+    },
+    {
+      "name": "industry",
+      "type": "Industry"
+    },
+    {
+      "name": "city_prefix",
+      "type": "CityPrefix"
+    },
+    {
+      "name": "city_suffix",
+      "type": "CitySuffix"
+    },
+    {
+      "name": "city_name",
+      "type": "CityName"
+    },
+    {
+      "name": "country_name",
+      "type": "CountryName"
+    },
+    {
+      "name": "country_code",
+      "type": "CountryCode"
+    },
+    {
+      "name": "street_suffix",
+      "type": "StreetSuffix"
+    },
+    {
+      "name": "street_name",
+      "type": "StreetName"
+    },
+    {
+      "name": "timezone",
+      "type": "TimeZone"
+    },
+    {
+      "name": "state_name",
+      "type": "StateName"
+    },
+    {
+      "name": "state_abbr",
+      "type": "StateAbbr"
+    },
+    {
+      "name": "secondary_address_type",
+      "type": "SecondaryAddressType"
+    },
+    {
+      "name": "secondary_address",
+      "type": "SecondaryAddress"
+    },
+    {
+      "name": "zipcode",
+      "type": "ZipCode"
+    },
+    {
+      "name": "postcode",
+      "type": "PostCode"
+    },
+    {
+      "name": "building_number",
+      "type": "BuildingNumber"
+    },
+    {
+      "name": "latitude",
+      "type": "Latitude"
+    },
+    {
+      "name": "longitude",
+      "type": "Longitude"
+    },
+    {
+      "name": "geohash",
+      "type": "Geohash",
+      "args": {
+        "precision": 11
+      }
+    },
+    {
+      "name": "licence_plate",
+      "type": "LicencePlate"
+    },
+    {
+      "name": "isbn",
+      "type": "Isbn"
+    },
+    {
+      "name": "isbn13",
+      "type": "Isbn13"
+    },
+    {
+      "name": "isbn10",
+      "type": "Isbn10"
+    },
+    {
+      "name": "phone_number",
+      "type": "PhoneNumber"
+    },
+    {
+      "name": "cell_number",
+      "type": "CellNumber"
+    },
+    {
+      "name": "time",
+      "type": "Time"
+    },
+    {
+      "name": "date",
+      "type": "Date"
+    },
+    {
+      "name": "datetime",
+      "type": "DateTime"
+    },
+    {
+      "name": "duration",
+      "type": "Duration"
+    },
+    {
+      "name": "datetime_before",
+      "type": "DateTimeBefore",
+      "args": {
+        "dt": "2023-04-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "datetime_after",
+      "type": "DateTimeAfter",
+      "args": {
+        "dt": "2023-04-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "datetime_between",
+      "type": "DateTimeBetween",
+      "args": {
+        "start": "2023-01-01T00:00:00Z",
+        "end": "2024-01-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "file_path",
+      "type": "FilePath"
+    },
+    {
+      "name": "file_name",
+      "type": "FileName"
+    },
+    {
+      "name": "file_extension",
+      "type": "FileExtension"
+    },
+    {
+      "name": "dir_path",
+      "type": "DirPath"
+    },
+    {
+      "name": "bic",
+      "type": "Bic"
+    },
+    {
+      "name": "uuid_v1",
+      "type": "UUIDv1"
+    },
+    {
+      "name": "uuid_v3",
+      "type": "UUIDv3"
+    },
+    {
+      "name": "uuid_v4",
+      "type": "UUIDv4"
+    },
+    {
+      "name": "uuid_v5",
+      "type": "UUIDv5"
+    },
+    {
+      "name": "currency_code",
+      "type": "CurrencyCode"
+    },
+    {
+      "name": "currency_name",
+      "type": "CurrencyName"
+    },
+    {
+      "name": "currency_symbol",
+      "type": "CurrencySymbol"
+    },
+    {
+      "name": "credit_card_number",
+      "type": "CreditCardNumber"
+    }
+  ]
+}

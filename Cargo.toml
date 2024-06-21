@@ -1,0 +1,32 @@
+[package]
+name = "rsfake"
+version = "0.2.0"
+edition = "2021"
+
+[features]
+default = ["chrono", "random_color", "http", "uuid", "rust_decimal", "bigdecimal"]
+chrono = ["fake/chrono", "dep:chrono"]
+random_color = ["fake/random_color"]
+http = ["fake/http"]
+uuid = ["fake/uuid", "dep:uuid"]
+rust_decimal = ["fake/rust_decimal", "dep:rust_decimal"]
+bigdecimal = ["fake/bigdecimal", "dep:bigdecimal"]
+
+[dependencies]
+fake = { version = "2.9", features = ["derive"] }
+bigdecimal = { version = "0.4", optional = true }
+chrono = { version = "0.4", optional = true }
+clap = { version = "4.4", features = ["derive", "env"] }
+polars = { version = "0.40", features = ["parquet", "json", "csv"] }
+rand = "0.8"
+rayon = "1.8"
+rust_decimal = { version = "1.35", optional = true }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+uuid = { version = "1.8", features = ["v4"], optional = true }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
