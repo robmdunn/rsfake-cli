@@ -79,6 +79,59 @@ fn create_series_from_type(
         }};
     }
 
+    macro_rules! generate_datetime_series {
+        ($($type_name:expr => $faker_type:expr),+) => {
+            match type_name {
+                $(
+                    $type_name => {
+                        let faker_type = $faker_type;
+                        let data: Result<Vec<String>, GenerateError> = (0..no_rows)
+                            .into_par_iter()
+                            .map(|_| faker_type.fake::<DateTime<Utc>>().to_rfc3339())
+                            .map(Ok)
+                            .collect();
+                        data.map(|d| Series::new(col_name, d))
+                    },
+                )+
+                _ => Err(GenerateError::UnsupportedType(type_name.to_string())),
+            }
+        };
+    }
+
+    macro_rules! generate_uuid_series {
+        ($($type_name:expr => $faker_type:expr),+) => {
+            match type_name {
+                $(
+                    $type_name => {
+                        let data: Vec<String> = (0..no_rows)
+                            .into_par_iter()
+                            .map(|_| $faker_type.fake::<uuid::Uuid>().to_string())
+                            .collect();
+                        Series::new(col_name, data)
+                    },
+                )+
+                _ => return Err(GenerateError::UnsupportedType(type_name.to_string())),
+            }
+        };
+    }
+
+    macro_rules! generate_decimal_series {
+        ($($type_name:expr => $faker_type:expr, $decimal_type:ty),+) => {
+            match type_name {
+                $(
+                    $type_name => {
+                        let data: Vec<String> = (0..no_rows)
+                            .into_par_iter()
+                            .map(|_| $faker_type.fake::<$decimal_type>().to_string())
+                            .collect();
+                        Series::new(col_name, data)
+                    },
+                )+
+                _ => return Err(GenerateError::UnsupportedType(type_name.to_string())),
+            }
+        };
+    }
+
     fn generate_boolean_series(ratio: u8, no_rows: usize, col_name: &str) -> Series {
         let data: Vec<bool> = (0..no_rows)
             .into_par_iter()
@@ -209,43 +262,15 @@ fn create_series_from_type(
             Series::new(col_name, data)
         }
         #[cfg(feature = "chrono")]
-        "DateTimeBefore" => {
-            let dt = get_args_datetime(col_def, "dt")?;
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| {
-                    chrono::raw::DateTimeBefore(EN, dt)
-                        .fake::<DateTime<Utc>>()
-                        .to_rfc3339()
-                })
-                .collect();
-            Series::new(col_name, data)
-        }
-        #[cfg(feature = "chrono")]
-        "DateTimeAfter" => {
-            let dt = get_args_datetime(col_def, "dt")?;
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| {
-                    chrono::raw::DateTimeAfter(EN, dt)
-                        .fake::<DateTime<Utc>>()
-                        .to_rfc3339()
-                })
-                .collect();
-            Series::new(col_name, data)
-        }
-        #[cfg(feature = "chrono")]
-        "DateTimeBetween" => {
-            let (start, end) = get_args_datetimerange(col_def)?;
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| {
+        "DateTimeBefore" | "DateTimeAfter" | "DateTimeBetween" => {
+            generate_datetime_series!(
+                "DateTimeBefore" => chrono::raw::DateTimeBefore(EN, get_args_datetime(col_def, "dt")?),
+                "DateTimeAfter" => chrono::raw::DateTimeAfter(EN, get_args_datetime(col_def, "dt")?),
+                "DateTimeBetween" => {
+                    let (start, end) = get_args_datetimerange(col_def)?;
                     chrono::raw::DateTimeBetween(EN, start, end)
-                        .fake::<DateTime<Utc>>()
-                        .to_rfc3339()
-                })
-                .collect();
-            Series::new(col_name, data)
+                }
+            )?
         }
         "FilePath" => generate_series!(filesystem::raw::FilePath(EN)),
         "FileName" => generate_series!(filesystem::raw::FileName(EN)),
@@ -253,104 +278,35 @@ fn create_series_from_type(
         "DirPath" => generate_series!(filesystem::raw::DirPath(EN)),
         "Bic" => generate_series!(finance::raw::Bic(EN)),
         #[cfg(feature = "uuid")]
-        "UUIDv1" => {
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| fake::uuid::UUIDv1.fake::<uuid::Uuid>().to_string())
-                .collect();
-            Series::new(col_name, data)
-        }
-        #[cfg(feature = "uuid")]
-        "UUIDv3" => {
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| fake::uuid::UUIDv3.fake::<uuid::Uuid>().to_string())
-                .collect();
-            Series::new(col_name, data)
-        }
-        #[cfg(feature = "uuid")]
-        "UUIDv4" => {
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| fake::uuid::UUIDv4.fake::<uuid::Uuid>().to_string())
-                .collect();
-            Series::new(col_name, data)
-        }
-        #[cfg(feature = "uuid")]
-        "UUIDv5" => {
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| fake::uuid::UUIDv5.fake::<uuid::Uuid>().to_string())
-                .collect();
-            Series::new(col_name, data)
+        "UUIDv1" | "UUIDv3" | "UUIDv4" | "UUIDv5" => {
+            generate_uuid_series!(
+                "UUIDv1" => fake::uuid::UUIDv1,
+                "UUIDv3" => fake::uuid::UUIDv3,
+                "UUIDv4" => fake::uuid::UUIDv4,
+                "UUIDv5" => fake::uuid::UUIDv5
+            )
         }
         "CurrencyCode" => generate_series!(currency::raw::CurrencyCode(EN)),
         "CurrencyName" => generate_series!(currency::raw::CurrencyName(EN)),
         "CurrencySymbol" => generate_series!(currency::raw::CurrencySymbol(EN)),
         "CreditCardNumber" => generate_series!(creditcard::raw::CreditCardNumber(EN)),
         #[cfg(feature = "rust_decimal")]
-        "Decimal" => {
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| Decimal.fake::<rust_decimal::Decimal>().to_string())
-                .collect();
-            Series::new(col_name, data)
-        }
-        #[cfg(feature = "rust_decimal")]
-        "PositiveDecimal" => {
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| PositiveDecimal.fake::<rust_decimal::Decimal>().to_string())
-                .collect();
-            Series::new(col_name, data)
-        }
-        #[cfg(feature = "rust_decimal")]
-        "NegativeDecimal" => {
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| NegativeDecimal.fake::<rust_decimal::Decimal>().to_string())
-                .collect();
-            Series::new(col_name, data)
-        }
-        #[cfg(feature = "rust_decimal")]
-        "NoDecimalPoints" => {
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| NoDecimalPoints.fake::<rust_decimal::Decimal>().to_string())
-                .collect();
-            Series::new(col_name, data)
+        "Decimal" | "PositiveDecimal" | "NegativeDecimal" | "NoDecimalPoints" => {
+            generate_decimal_series!(
+                "Decimal" => Decimal, rust_decimal::Decimal,
+                "PositiveDecimal" => PositiveDecimal, rust_decimal::Decimal,
+                "NegativeDecimal" => NegativeDecimal, rust_decimal::Decimal,
+                "NoDecimalPoints" => NoDecimalPoints, rust_decimal::Decimal
+            )
         }
         #[cfg(feature = "bigdecimal")]
-        "BigDecimal" => {
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| BigDecimal.fake::<bigdecimal::BigDecimal>().to_string())
-                .collect();
-            Series::new(col_name, data)
-        }
-        #[cfg(feature = "bigdecimal")]
-        "PositiveBigDecimal" => {
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| PositiveBigDecimal.fake::<bigdecimal::BigDecimal>().to_string())
-                .collect();
-            Series::new(col_name, data)
-        }
-        #[cfg(feature = "bigdecimal")]
-        "NegativeBigDecimal" => {
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| NegativeBigDecimal.fake::<bigdecimal::BigDecimal>().to_string())
-                .collect();
-            Series::new(col_name, data)
-        }
-        #[cfg(feature = "bigdecimal")]
-        "NoBigDecimalPoints" => {
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| NoBigDecimalPoints.fake::<bigdecimal::BigDecimal>().to_string())
-                .collect();
-            Series::new(col_name, data)
+        "BigDecimal" | "PositiveBigDecimal" | "NegativeBigDecimal" | "NoBigDecimalPoints" => {
+            generate_decimal_series!(
+                "BigDecimal" => BigDecimal, bigdecimal::BigDecimal,
+                "PositiveBigDecimal" => PositiveBigDecimal, bigdecimal::BigDecimal,
+                "NegativeBigDecimal" => NegativeBigDecimal, bigdecimal::BigDecimal,
+                "NoBigDecimalPoints" => NoBigDecimalPoints, bigdecimal::BigDecimal
+            )
         }
         _ => return Err(GenerateError::UnsupportedType(type_name.to_string())),
     })
