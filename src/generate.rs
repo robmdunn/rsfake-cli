@@ -1,6 +1,8 @@
 use fake::Fake;
 use fake::faker::company::raw::{Profession, Industry};
+#[cfg(feature="rust_decimal")]
 use fake::decimal::{Decimal, PositiveDecimal, NegativeDecimal, NoDecimalPoints};
+#[cfg(feature="bigdecimal")]
 use fake::bigdecimal::{BigDecimal, PositiveBigDecimal, NegativeBigDecimal, NoBigDecimalPoints};
 use polars::prelude::*;
 use rand::Rng;
@@ -78,58 +80,35 @@ fn create_series_from_type(
             Series::new(col_name, data)
         }};
     }
-
+    
     macro_rules! generate_datetime_series {
-        ($($type_name:expr => $faker_type:expr),+) => {
-            match type_name {
-                $(
-                    $type_name => {
-                        let faker_type = $faker_type;
-                        let data: Result<Vec<String>, GenerateError> = (0..no_rows)
-                            .into_par_iter()
-                            .map(|_| faker_type.fake::<DateTime<Utc>>().to_rfc3339())
-                            .map(Ok)
-                            .collect();
-                        data.map(|d| Series::new(col_name, d))
-                    },
-                )+
-                _ => Err(GenerateError::UnsupportedType(type_name.to_string())),
-            }
-        };
+        ($faker_type:expr) => {{
+            let data: Vec<String> = (0..no_rows)
+                .into_par_iter()
+                .map(|_| $faker_type.fake::<DateTime<Utc>>().to_rfc3339())
+                .collect();
+            Series::new(col_name, data)
+        }};
     }
 
     macro_rules! generate_uuid_series {
-        ($($type_name:expr => $faker_type:expr),+) => {
-            match type_name {
-                $(
-                    $type_name => {
-                        let data: Vec<String> = (0..no_rows)
-                            .into_par_iter()
-                            .map(|_| $faker_type.fake::<uuid::Uuid>().to_string())
-                            .collect();
-                        Series::new(col_name, data)
-                    },
-                )+
-                _ => return Err(GenerateError::UnsupportedType(type_name.to_string())),
-            }
-        };
+        ($faker_type:expr) => {{
+            let data: Vec<String> = (0..no_rows)
+                .into_par_iter()
+                .map(|_| $faker_type.fake::<uuid::Uuid>().to_string())
+                .collect();
+            Series::new(col_name, data)
+        }};
     }
 
     macro_rules! generate_decimal_series {
-        ($($type_name:expr => $faker_type:expr, $decimal_type:ty),+) => {
-            match type_name {
-                $(
-                    $type_name => {
-                        let data: Vec<String> = (0..no_rows)
-                            .into_par_iter()
-                            .map(|_| $faker_type.fake::<$decimal_type>().to_string())
-                            .collect();
-                        Series::new(col_name, data)
-                    },
-                )+
-                _ => return Err(GenerateError::UnsupportedType(type_name.to_string())),
-            }
-        };
+        ($faker_type:expr, $decimal_type:ty) => {{
+            let data: Vec<String> = (0..no_rows)
+                .into_par_iter()
+                .map(|_| $faker_type.fake::<$decimal_type>().to_string())
+                .collect();
+            Series::new(col_name, data)
+        }};
     }
 
     fn generate_boolean_series(ratio: u8, no_rows: usize, col_name: &str) -> Series {
@@ -262,52 +241,53 @@ fn create_series_from_type(
             Series::new(col_name, data)
         }
         #[cfg(feature = "chrono")]
-        "DateTimeBefore" | "DateTimeAfter" | "DateTimeBetween" => {
-            generate_datetime_series!(
-                "DateTimeBefore" => chrono::raw::DateTimeBefore(EN, get_args_datetime(col_def, "dt")?),
-                "DateTimeAfter" => chrono::raw::DateTimeAfter(EN, get_args_datetime(col_def, "dt")?),
-                "DateTimeBetween" => {
-                    let (start, end) = get_args_datetimerange(col_def)?;
-                    chrono::raw::DateTimeBetween(EN, start, end)
-                }
-            )?
-        }
+        "DateTimeBefore" => {
+            let dt = get_args_datetime(col_def, "dt")?;
+            generate_datetime_series!(chrono::raw::DateTimeBefore(EN, dt))
+        },
+        #[cfg(feature = "chrono")]
+        "DateTimeAfter" => {
+            let dt = get_args_datetime(col_def, "dt")?;
+            generate_datetime_series!(chrono::raw::DateTimeAfter(EN, dt))
+        },
+        #[cfg(feature = "chrono")]
+        "DateTimeBetween" => {
+            let (start, end) = get_args_datetimerange(col_def)?;
+            generate_datetime_series!(chrono::raw::DateTimeBetween(EN, start, end))
+        },
         "FilePath" => generate_series!(filesystem::raw::FilePath(EN)),
         "FileName" => generate_series!(filesystem::raw::FileName(EN)),
         "FileExtension" => generate_series!(filesystem::raw::FileExtension(EN)),
         "DirPath" => generate_series!(filesystem::raw::DirPath(EN)),
         "Bic" => generate_series!(finance::raw::Bic(EN)),
         #[cfg(feature = "uuid")]
-        "UUIDv1" | "UUIDv3" | "UUIDv4" | "UUIDv5" => {
-            generate_uuid_series!(
-                "UUIDv1" => fake::uuid::UUIDv1,
-                "UUIDv3" => fake::uuid::UUIDv3,
-                "UUIDv4" => fake::uuid::UUIDv4,
-                "UUIDv5" => fake::uuid::UUIDv5
-            )
-        }
+        "UUIDv1" => generate_uuid_series!(fake::uuid::UUIDv1),
+        #[cfg(feature = "uuid")]
+        "UUIDv3" => generate_uuid_series!(fake::uuid::UUIDv3),
+        #[cfg(feature = "uuid")]
+        "UUIDv4" => generate_uuid_series!(fake::uuid::UUIDv4),
+        #[cfg(feature = "uuid")]
+        "UUIDv5" => generate_uuid_series!(fake::uuid::UUIDv5),
         "CurrencyCode" => generate_series!(currency::raw::CurrencyCode(EN)),
         "CurrencyName" => generate_series!(currency::raw::CurrencyName(EN)),
         "CurrencySymbol" => generate_series!(currency::raw::CurrencySymbol(EN)),
         "CreditCardNumber" => generate_series!(creditcard::raw::CreditCardNumber(EN)),
         #[cfg(feature = "rust_decimal")]
-        "Decimal" | "PositiveDecimal" | "NegativeDecimal" | "NoDecimalPoints" => {
-            generate_decimal_series!(
-                "Decimal" => Decimal, rust_decimal::Decimal,
-                "PositiveDecimal" => PositiveDecimal, rust_decimal::Decimal,
-                "NegativeDecimal" => NegativeDecimal, rust_decimal::Decimal,
-                "NoDecimalPoints" => NoDecimalPoints, rust_decimal::Decimal
-            )
-        }
+        "Decimal" => generate_decimal_series!(Decimal, rust_decimal::Decimal),
+        #[cfg(feature = "rust_decimal")]
+        "PositiveDecimal" => generate_decimal_series!(PositiveDecimal, rust_decimal::Decimal),
+        #[cfg(feature = "rust_decimal")]
+        "NegativeDecimal" => generate_decimal_series!(NegativeDecimal, rust_decimal::Decimal),
+        #[cfg(feature = "rust_decimal")]
+        "NoDecimalPoints" => generate_decimal_series!(NoDecimalPoints, rust_decimal::Decimal),
         #[cfg(feature = "bigdecimal")]
-        "BigDecimal" | "PositiveBigDecimal" | "NegativeBigDecimal" | "NoBigDecimalPoints" => {
-            generate_decimal_series!(
-                "BigDecimal" => BigDecimal, bigdecimal::BigDecimal,
-                "PositiveBigDecimal" => PositiveBigDecimal, bigdecimal::BigDecimal,
-                "NegativeBigDecimal" => NegativeBigDecimal, bigdecimal::BigDecimal,
-                "NoBigDecimalPoints" => NoBigDecimalPoints, bigdecimal::BigDecimal
-            )
-        }
+        "BigDecimal" => generate_decimal_series!(BigDecimal, bigdecimal::BigDecimal),
+        #[cfg(feature = "bigdecimal")]
+        "PositiveBigDecimal" => generate_decimal_series!(PositiveBigDecimal, bigdecimal::BigDecimal),
+        #[cfg(feature = "bigdecimal")]
+        "NegativeBigDecimal" => generate_decimal_series!(NegativeBigDecimal, bigdecimal::BigDecimal),
+        #[cfg(feature = "bigdecimal")]
+        "NoBigDecimalPoints" => generate_decimal_series!(NoBigDecimalPoints, bigdecimal::BigDecimal),
         _ => return Err(GenerateError::UnsupportedType(type_name.to_string())),
     })
 }

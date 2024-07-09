@@ -1,0 +1,36 @@
+{
+  "columns": [
+    {
+      "name": "regular_decimal",
+      "type": "Decimal"
+    },
+    {
+      "name": "positive_decimal",
+      "type": "PositiveDecimal"
+    },
+    {
+      "name": "negative_decimal",
+      "type": "NegativeDecimal"
+    },
+    {
+      "name": "no_decimal_points",
+      "type": "NoDecimalPoints"
+    },
+    {
+      "name": "big_decimal",
+      "type": "BigDecimal"
+    },
+    {
+      "name": "positive_big_decimal",
+      "type": "PositiveBigDecimal"
+    },
+    {
+      "name": "negative_big_decimal",
+      "type": "NegativeBigDecimal"
+    },
+    {
+      "name": "no_big_decimal_points",
+      "type": "NoBigDecimalPoints"
+    }
+  ]
+}
