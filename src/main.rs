@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::time::Instant;
 
-use clap::Parser;
+use clap::{builder::{styling::AnsiColor, Styles}, Parser};
 
 mod extract;
 mod generate;
@@ -9,8 +9,15 @@ mod generate;
 use extract::{read_file, write_dataframe};
 use generate::generate_from_json;
 
+const V3_STYLES: Styles = Styles::styled()
+    .header(AnsiColor::Yellow.on_default())
+    .usage(AnsiColor::Green.on_default())
+    .literal(AnsiColor::Magenta.on_default())
+    .placeholder(AnsiColor::Cyan.on_default());
+
 #[derive(Parser)]
 #[command(name = "rsfake")]
+#[command(styles=V3_STYLES)]
 #[command(about = "Generates fake data based on the provided schema file.")]
 #[command(long_about = "This program generates fake data based on a JSON schema file. You can specify the number of rows, the number of threads for parallel processing, and the schema file to be used.")]
 struct Cli {
