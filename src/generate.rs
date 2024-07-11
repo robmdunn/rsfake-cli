@@ -65,7 +65,23 @@ fn create_series_from_type(
 
     macro_rules! generate_series {
         ($faker:expr) => {{
-            let data: Vec<String> = (0..no_rows).into_par_iter().map(|_| $faker.fake()).collect();
+            let data: Vec<String> = (0..no_rows)
+                .into_par_iter()
+                .map(|_| $faker.fake())
+                .collect();
+            Series::new(col_name, data)
+        }};
+    }
+
+    macro_rules! generate_duration_series {
+        ($faker_type:expr) => {{
+            let data: Vec<String> = (0..no_rows)
+                .into_par_iter()
+                .map(|_| {
+                    let duration: Duration = $faker_type.fake();
+                    duration.to_string()
+                })
+                .collect();
             Series::new(col_name, data)
         }};
     }
@@ -230,16 +246,7 @@ fn create_series_from_type(
         #[cfg(feature = "chrono")]
         "DateTime" => generate_series!(chrono::raw::DateTime(EN)),
         #[cfg(feature = "chrono")]
-        "Duration" => {
-            let data: Vec<String> = (0..no_rows)
-                .into_par_iter()
-                .map(|_| {
-                    let duration: Duration = chrono::raw::Duration(EN).fake();
-                    duration.to_string()
-                })
-                .collect();
-            Series::new(col_name, data)
-        }
+        "Duration" => generate_duration_series!(chrono::raw::Duration(EN)),
         #[cfg(feature = "chrono")]
         "DateTimeBefore" => {
             let dt = get_args_datetime(col_def, "dt")?;

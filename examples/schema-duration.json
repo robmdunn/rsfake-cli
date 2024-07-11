@@ -1,0 +1,8 @@
+{
+  "columns": [
+    {
+      "name": "duration",
+      "type": "Duration"
+    }
+  ]
+}
